@@ -7,18 +7,22 @@ import cn.nukkit.event.player.PlayerMoveEvent;
 import cn.nukkit.math.Vector3;
 
 public class Main extends PluginBase implements Listener {
+    
+    public int distance;
+    public String message;
 
     @Override
     public void onEnable() {
         this.getServer().getPluginManager().registerEvents(this, this);
         this.saveDefaultConfig();
-        this.getConfig();
+        this.distance = this.getConfig().getInt("distance");
+        this.message = this.getConfig().getString("message").replace("§", "\u00A7");
     }
 
     @EventHandler(ignoreCancelled=true)
     public void onMove(PlayerMoveEvent e) {
-        if (e.getPlayer().distance(new Vector3(e.getPlayer().getLevel().getSpawnLocation().getX(), e.getPlayer().getY(), e.getPlayer().getLevel().getSpawnLocation().getZ())) > this.getConfig().getInt("distance")) {
-            e.getPlayer().sendMessage(this.getConfig().getString("message").replace("§", "\u00A7"));
+        if (e.getPlayer().distance(new Vector3(e.getPlayer().getLevel().getSpawnLocation().getX(), e.getPlayer().getY(), e.getPlayer().getLevel().getSpawnLocation().getZ())) > distance) {
+            e.getPlayer().sendMessage(message);
             e.setCancelled(true);
         }
     }
