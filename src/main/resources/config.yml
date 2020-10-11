@@ -1,5 +1,8 @@
-configVersion: 2
+configVersion: 3
 distance: 10000
 message: "§cYou are going too far away!"
 messageTp: "§cYou cannot teleport outside world border!"
 teleportToSpawn: false
+checkVehicleMovement: false
+worlds:
+  - "world"
