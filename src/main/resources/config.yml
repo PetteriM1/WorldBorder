@@ -1,4 +1,4 @@
-configVersion: 3
+configVersion: 4
 distance: 10000
 message: "§cYou are going too far away!"
 messageTp: "§cYou cannot teleport outside the world border!"
