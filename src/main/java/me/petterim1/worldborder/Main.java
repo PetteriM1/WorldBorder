@@ -61,14 +61,14 @@ public class Main extends PluginBase implements Listener {
         teleportToSpawn = getConfig().getBoolean("teleportToSpawn");
         checkVehicleMovement = getConfig().getBoolean("checkVehicleMovement");
         opBypass = getConfig().getBoolean("opBypass");
-        worlds = getConfig().getStringList("worlds");
+        //worlds = getConfig().getStringList("worlds");
         getServer().getPluginManager().registerEvents(this, this);
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onMove(PlayerMoveEvent e) {
         Player p = e.getPlayer();
-        if (worlds.contains(p.getLevel().getName())) {
+        if (true || worlds.contains(p.getLevel().getName())) {
             Position spawn = p.getLevel().getSpawnLocation();
             if (p.distanceSquared(temp.setComponents(spawn.getX(), p.getY(), spawn.getZ())) > distance) {
                 if (!(opBypass && p.isOp())) {
@@ -85,7 +85,7 @@ public class Main extends PluginBase implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent e) {
         Player p = e.getPlayer();
-        if (worlds.contains(e.getTo().getLevel().getName())) {
+        if (true || worlds.contains(e.getTo().getLevel().getName())) {
             Position spawn = e.getTo().getLevel().getSpawnLocation();
             if (e.getTo().distanceSquared(temp.setComponents(spawn.getX(), e.getTo().getY(), spawn.getZ())) > distance) {
                 if (!(opBypass && p.isOp())) {
@@ -100,7 +100,7 @@ public class Main extends PluginBase implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onVehicleMove(VehicleMoveEvent e) {
-        if (checkVehicleMovement && worlds.contains(e.getTo().getLevel().getName())) {
+        if (checkVehicleMovement /*&& worlds.contains(e.getTo().getLevel().getName())*/) {
             Position spawn = e.getTo().getLevel().getSpawnLocation();
             if (e.getTo().distanceSquared(temp.setComponents(spawn.getX(), e.getTo().getY(), spawn.getZ())) > distance) {
                 e.getVehicle().kill();
