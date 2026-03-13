@@ -5,6 +5,7 @@ import cn.nukkit.event.player.PlayerTeleportEvent;
 import cn.nukkit.event.vehicle.VehicleMoveEvent;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
+import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
@@ -23,46 +24,59 @@ public class Main extends PluginBase implements Listener {
     private String messageTp;
     private String messageTpOp;
     private boolean square;
+    private boolean middlePointAtZero;
+    private boolean allWorlds;
     private boolean teleportToSpawn;
     private boolean checkVehicleMovement;
     private boolean opBypass;
     private Set<String> worlds;
+
+    private static final Vector3 ZERO = new Vector3(0, 0, 0);
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
 
-        int ver = 5;
-        int cfg = getConfig().getInt("configVersion", 99);
-        if (cfg != ver) {
-            if (cfg == 4) {
-                Config c = getConfig();
+        Config c = getConfig();
+        int currentVersion = 6;
+        int configVersion = c.getInt("configVersion", 99);
+
+        if (configVersion != currentVersion) {
+            boolean changed = true;
+
+            if (configVersion == 5) {
+                c.set("middlePointAtZero", false);
+                c.set("allWorlds", false);
+            } else if (configVersion == 4) {
                 c.set("square", false);
-                c.save();
-                getLogger().info("Config updated from version " + cfg);
-            } else if (cfg == 3) {
-                Config c = getConfig();
-                c.set("configVersion", ver);
+                c.set("middlePointAtZero", false);
+                c.set("allWorlds", false);
+            } else if (configVersion == 3) {
                 c.set("square", false);
+                c.set("middlePointAtZero", false);
+                c.set("allWorlds", false);
                 c.set("messageTpOp", "§6You have passed the world border");
                 c.set("opBypass", false);
-                c.save();
-                getLogger().info("Config updated from version " + cfg);
-            } else if (cfg < 3) {
-                Config c = getConfig();
-                c.set("configVersion", ver);
+            } else if (configVersion < 3) {
                 c.set("square", false);
+                c.set("middlePointAtZero", false);
+                c.set("allWorlds", true);
                 c.set("messageTp", "§cYou cannot teleport outside the world border!");
                 c.set("messageTpOp", "§6You have passed the world border");
                 c.set("teleportToSpawn", false);
                 c.set("checkVehicleMovement", false);
                 c.set("opBypass", false);
                 c.set("worlds", Arrays.asList("world"));
-                c.save();
-                getLogger().info("Config updated from version " + cfg);
             } else {
+                changed = false;
                 getLogger().warning("Couldn't update the config file: unknown config version");
+            }
+
+            if (changed) {
+                c.set("configVersion", currentVersion);
+                c.save();
+                getLogger().info("Config updated from version " + configVersion);
             }
         }
 
@@ -71,6 +85,8 @@ public class Main extends PluginBase implements Listener {
         messageTp = getConfig().getString("messageTp");
         messageTpOp = getConfig().getString("messageTpOp");
         square = getConfig().getBoolean("square");
+        middlePointAtZero = getConfig().getBoolean("middlePointAtZero");
+        allWorlds = getConfig().getBoolean("allWorlds");
         teleportToSpawn = getConfig().getBoolean("teleportToSpawn");
         checkVehicleMovement = getConfig().getBoolean("checkVehicleMovement");
         opBypass = getConfig().getBoolean("opBypass");
@@ -117,21 +133,21 @@ public class Main extends PluginBase implements Listener {
 
     public boolean outsideBorder(Position to) {
         Level level = to.getLevel();
-        if (!worlds.contains(level.getName())) {
+        if (!allWorlds && !worlds.contains(level.getName())) {
             return false;
         }
 
-        Position spawn = level.getSpawnLocation();
+        Vector3 spawn = middlePointAtZero ? ZERO : level.getSpawnLocation();
         return (square && outsideSquare(spawn, to)) || (!square && outsideCircle(spawn, to));
     }
 
-    private boolean outsideCircle(Position a, Position b) {
+    private boolean outsideCircle(Vector3 a, Vector3 b) {
         double x = a.x - b.x;
         double z = a.z - b.z;
         return ((x * x) + (z * z)) > (distance * distance);
     }
 
-    private boolean outsideSquare(Position a, Position b) {
+    private boolean outsideSquare(Vector3 a, Vector3 b) {
         return Math.abs(a.x - b.x) > distance || Math.abs(a.z - b.z) > distance;
     }
 }

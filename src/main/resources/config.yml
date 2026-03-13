@@ -1,11 +1,13 @@
-configVersion: 5
+configVersion: 6
 distance: 10000
 square: true
+middlePointAtZero: false
 message: "§cYou are going too far away!"
 messageTp: "§cYou cannot teleport outside the world border!"
 messageTpOp: "§6You have passed the world border"
 teleportToSpawn: false
 checkVehicleMovement: true
 opBypass: true
+allWorlds: false
 worlds:
   - "world"
